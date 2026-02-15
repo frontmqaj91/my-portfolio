@@ -19,7 +19,7 @@ export default function Home() {
 
       <div className="relative z-10">
 
-        <nav className="fixed top-0 left-0 w-full backdrop-blur-md bg-black/30 border-b border-gray-800 z-50">
+        <nav className="fixed top-0 left-0 w-full backdrop-blur-md bg-black/70 text-white-z50">
           <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
     
     <h1 className="text-lg font-bold tracking-wide">
