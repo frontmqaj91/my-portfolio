@@ -13,13 +13,13 @@ export default function Home() {
 
     {/* Overlay */}
 
-      <div className="absolute inset-0 bg-black/60"></div>
+      <div className="absolute inset-0 bg-black/64"></div>
 
       {/* Content */}
 
       <div className="relative z-10">
 
-        <nav className="fixed top-0 left-0 w-full backdrop-blur-md bg-black/70 text-white-z50">
+        <nav className="fixed top-0 left-0 w-full backdrop-blur-md bg-black/70 text-white">
           <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
     
     <h1 className="text-lg font-bold tracking-wide">
@@ -121,7 +121,7 @@ export default function Home() {
           Crafting High-Performance Websites That Convert
         </h1>
 
-        <p className="text-gray-200 max-w-2xl mb-8">
+        <p className="text-white-80 max-w-2xl mb-8">
           I build fast, modern websites for growing businesses.
           High-performance React & Next.js websites that convert visitors into clients.
         </p>
@@ -257,7 +257,7 @@ export default function Home() {
         id="about"
         className="px-6 max-w-4xl mx-auto py-24 text-center">
         <h2 className="text-3xl font-bold mb-6">
-          About FrontCraft
+          About FrontCraftDev
         </h2>
         <p className="text-gray-400 max-w-2xl mb-8 mx-auto">
           At FrontCraft, we don't just build websites — we craft high-performance digital experiences
