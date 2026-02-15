@@ -5,13 +5,22 @@ export default function Home() {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <main
-    className="min-h-screen bg-cover bg-center"
+    className="min-h-screen bg-cover bg-center bg-no-repeat relative"
     style={{
       backgroundImage: "url('/bg.png')"
     }}
-    >
-      <nav className="fixed top-0 left-0 w-full backdrop-blur-md bg-black/30 border-b border-gray-800 z-50">
-  <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+  >
+
+    {/* Overlay */}
+
+      <div className="absolute inset-0 bg-black/60"></div>
+
+      {/* Content */}
+
+      <div className="relative z-10">
+
+        <nav className="fixed top-0 left-0 w-full backdrop-blur-md bg-black/30 border-b border-gray-800 z-50">
+          <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
     
     <h1 className="text-lg font-bold tracking-wide">
       FrontCraftDev
@@ -37,8 +46,6 @@ export default function Home() {
       <a href="#about" className="hover:text-blue-400 transition">
           About
         </a>
-
-      
     </div>
 
     {/* Hamburger button */}
@@ -265,6 +272,7 @@ export default function Home() {
           </p>
       </section>
       
+      </div>
     </main>
   );
 }
