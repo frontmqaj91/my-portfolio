@@ -117,11 +117,11 @@ export default function Home() {
       <section
        id="home"
         className="flex flex-col items-center justify-center text-center px-6 20 py-32">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6">
+        <h1 className="text-4xl md:text-5xl font-bold mb-6 text-white">
           Crafting High-Performance Websites That Convert
         </h1>
 
-        <p className="text-gray-400 max-w-2xl mb-8">
+        <p className="text-gray-200 max-w-2xl mb-8">
           I build fast, modern websites for growing businesses.
           High-performance React & Next.js websites that convert visitors into clients.
         </p>
