@@ -155,11 +155,28 @@ export default function Home() {
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
+             <div className="bg-gray-900 p-6 rounded-2xl shadow-xl">
+    <h3 className="text-xl font-semibold mb-3 text-purple-400">
+      Ahmed Clinic Booking System
+    </h3>
+
+    <p className="text-gray-400 mb-4">
+      نظام حجز مواعيد طبي متكامل مبني باستخدام Next.js و Tailwind.
+    </p>
+    <a
+    href="https://ahmed-clinic-qrl6.vercel.app/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="inline-block mt-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
+    >
+      View Live Project
+    </a>
+    </div>
 
             <div className="bg-gray-900 p-6 rounded-2xl shadow-xl hover:scale-105 transition">
               <h3 className="text-xl font-semibold mb-3 text-white">Business Website</h3>
               <p className="text-gray-400 mb-4">
-                Modern responsive website built with Next.js and Tailwind CSS.
+                موقع عيادة طبية احترافي ومتجاوب بالكامل (Responsive) مبني بإطار Next.js 16 مع Tailwind CSS، يدعم اللغة العربية واتجاه RTL بشكل كامل. يتضمن نظام حجز مواعيد، صفحة تأكيد ديناميكية، وتخزين محلي للبيانات، مع تجربة مستخدم محسّنة على الهواتف وأجهزة الحاسوب. تم التركيز على الأداء، التنظيم البنيوي، وقابلية التوسع مستقبلاً.
               </p>
             </div>
 
