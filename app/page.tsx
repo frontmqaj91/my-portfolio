@@ -176,7 +176,7 @@ export default function Home() {
             <div className="bg-gray-900 p-6 rounded-2xl shadow-xl hover:scale-105 transition">
               <h3 className="text-xl font-semibold mb-3 text-white">Business Website</h3>
               <p className="text-gray-400 mb-4">
-                موقع عيادة طبية احترافي ومتجاوب بالكامل (Responsive) مبني بإطار Next.js 16 مع Tailwind CSS، يدعم اللغة العربية واتجاه RTL بشكل كامل. يتضمن نظام حجز مواعيد، صفحة تأكيد ديناميكية، وتخزين محلي للبيانات، مع تجربة مستخدم محسّنة على الهواتف وأجهزة الحاسوب. تم التركيز على الأداء، التنظيم البنيوي، وقابلية التوسع مستقبلاً.
+                Modern responsiv website built with next.js and Tailwind Css.
               </p>
             </div>
 
