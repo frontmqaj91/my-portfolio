@@ -112,7 +112,7 @@ export default function Home() {
           className="px-6 max-w-6xl mx-auto py-24">
 
           <h2 className="text-3xl font-bold text-center mb-12 text-white">
-            Services I Offer
+            Services We Offer
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8 mt-12">
