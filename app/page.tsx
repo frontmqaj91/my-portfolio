@@ -99,12 +99,24 @@ export default function Home() {
             Have a project in mind? Let&apos;s work together!
           </p>
 
-          <a href="https://wa.me/19805779916"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-6 py-3 bg-green-500 hover:bg-green-600 active:scale-95 rounded-lg text-white font-medium shadow-lg transition">
-            Chat on WhatsApp
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+  <a href="https://wa.me/19805779916"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="px-6 py-3 bg-green-500 hover:bg-green-600 active:scale-95 rounded-lg text-white font-medium shadow-lg transition">
+    Chat on WhatsApp
+  </a>
+
+  <a href="https://www.facebook.com/FrontCraftDev"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="px-6 py-3 bg-[#1877F2] hover:bg-blue-700 active:scale-95 rounded-lg text-white font-medium shadow-lg transition">
+    Visit Our Facebook Page
+  </a>
+
+</div>
+
         </section>
 
         {/* Services */}
