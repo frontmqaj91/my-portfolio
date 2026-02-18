@@ -96,7 +96,7 @@ export default function Home() {
           </h2>
 
           <p className="text-gray-300 max-w-2xl mb-8 mx-auto">
-            Have a project in mind? Let's work together!
+            Have a project in mind? Let&apos;s work together!
           </p>
 
           <a href="https://wa.me/19805779916"
@@ -205,7 +205,7 @@ export default function Home() {
           </h2>
 
           <p className="text-gray-300 max-w-2xl mb-8 mx-auto">
-            At FrontCraft, we don't just build websites — we craft high-performance digital experiences designed to grow your business.
+            At FrontCraft, we don&apos;t just build websites — we craft high-performance digital experiences designed to grow your business.
           </p>
 
           <p className="text-gray-300 max-w-2xl mx-auto">
