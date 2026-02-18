@@ -29,3 +29,9 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* تحسين تفاعل الأزرار على الموبايل */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
