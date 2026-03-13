@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { resolve } from "path";
+
 import { useState } from "react";
 
 const packages = {
