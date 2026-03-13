@@ -14,8 +14,9 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://frontcraftdev.com"),
-  title: "FrontCraftDev",
-  description: "Portfolio showcasing modern web development projects.",
+  title: "FrontCraftDev | Modern Website for Your Business",
+  description:
+  "I design and build modern websites that help businesses grow and stand out online.",
   alternates: {
     canonical: "/",
   },
@@ -29,7 +30,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased} antialiased
+        bg-[var(--background)] text-[var(--text-main)] min-h-screen`}
       >
         {children}
       </body>

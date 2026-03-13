@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f3f3fc;
+  --card: #e4d3d3;
+  --primary: #D4A574;
+  --primary-hover: #b8925e;
+  --text-main: #1f1f1f;
+  --text-muted: #ddd2c5;
+  --border-soft: #d5cbbe;
 }
 
 @layer theme {
@@ -40,4 +45,16 @@ button:active
 a:active {
   transform: scale(0.9);
   opacity: 0.8;
+}
+
+/* scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #ababab;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }
