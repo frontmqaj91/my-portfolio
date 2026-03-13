@@ -5,8 +5,8 @@ import { useSearchParams } from "next/navigation";
 
 export default function ContactPage() {
 
-const searchParams = useSearchParams();
-const selectedPackage = searchParams.get("package");
+  const searchParams = useSearchParams();
+  const selectedPackage = searchParams.get("package");
 
 
 const packages = {
