@@ -1,8 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { useState } from "react";
+export default function ContactPage() {
+
+const searchParams = useSearchParams();
+const selectedPackage = searchParams.get("package");
+
 
 const packages = {
   starter: {
@@ -17,6 +22,7 @@ const packages = {
       "Clean scalable architecture",
     ],
   },
+
   professional: {
     title: "Professional Package",
     price: "$350",
@@ -71,11 +77,6 @@ const packages = {
   },
 };
 
-export default function ContactPage() {
-
-
-  const searchParams = useSearchParams();
-  const selectedPackage = searchParams.get("package");
 
   const selectedData = selectedPackage
     ? packages[selectedPackage as keyof typeof packages]
