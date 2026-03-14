@@ -1,4 +1,6 @@
 
+"use client";
+
 import PricingTemplate from "@/app/components/PricingTemplate";
 
 export default function PremiumPage() {
