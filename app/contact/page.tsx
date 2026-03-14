@@ -1,9 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 export default function ContactPage() {
+
+  return (
+    <Suspense fallback={null}>
+      <ContactContent />
+    </Suspense>
+  );
+}
+
+function ContactContent() {
 
   const searchParams = useSearchParams();
   const selectedPackage = searchParams.get("package");
