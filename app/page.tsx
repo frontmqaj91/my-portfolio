@@ -72,7 +72,7 @@ export default function Home() {
         <section id="home"
           className="flex flex-col items-center justify-center text-center px-6 py-32">
 
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-dark-gray">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 text-dark-gray leading-snug">
             Custom Websites That Help Your Business Attract More Clients & Grow Online
           </h1>
 
