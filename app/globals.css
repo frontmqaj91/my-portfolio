@@ -6,7 +6,7 @@
   --primary: #D4A574;
   --primary-hover: #b8925e;
   --text-main: #1f1f1f;
-  --text-muted: #000000;
+  --text-muted: #ddd2c5;
   --border-soft: #d5cbbe;
 }
 
@@ -21,7 +21,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #dfe5ef;
+    --background: #e5e6ea;
     --foreground: #ededed;
   }
 }
