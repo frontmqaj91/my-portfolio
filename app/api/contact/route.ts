@@ -1,20 +1,33 @@
 import nodemailer from "nodemailer";
 
-export async function POST(req: Request) {
+export async function POST(req:Request) {
   try {
-    const body = await req.json();
+    let body;
 
-    console.log("ENV:", process.env.EMAIL_USER);
-    console.log("BODY:", body);
+    try {
 
-    const name = body.name || "";
-    const email = body.email || "";
-    const message = body.message || "";
-    const selectedPackage = body.package || "Not specified";
+      body = await req.json();
 
+    } catch (err) {
+      console.error("JSON ERROR:", err);
+      return Response.json({ error: "Invalid JSON" }, { status: 400 });
+
+      }
+
+      console.log("BODY:", body);
+
+      const name = body.name || "";
+      const email = body.email || "";
+      const message = body.message || "";
+      const selectedPackage = body.package || "Not specified";
+
+   if (!name || !email || !message) {
+      return Response.json({ error: "Missing required fields" }, { status: 400 });
+    }
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 465,
+      port: 456,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -24,20 +37,15 @@ export async function POST(req: Request) {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.EMAIL_USER,
-      subject: `New Project Request - ${selectedPackage || "General Inquiry"}`,
-      html: `
-        <h2>New Client Request</h2>
-        <p><strong>Selected Package:</strong> ${selectedPackage || "Not specified"}
-    </p>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message}</p>
-      `,
+      subject: `New Project Request - ${selectedPackage}`,
+      html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong>
+     ${email}</p><p><strong>Package:</strong>
+     ${selectedPackage}</p><p><strong>Message:</strong> ${message}</p>`,
     });
 
-    return Response.json({ success: true });
-  } catch (error) {
-    return Response.json({ error: "Email failed" }, { status: 500 });
+    return Response.json({ message: "Email sent successfully" }, { status: 200 });
+  } catch (err) {
+    console.error("ERROR:", err);
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }
