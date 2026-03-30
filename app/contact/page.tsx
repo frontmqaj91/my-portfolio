@@ -99,6 +99,7 @@ const packages = {
 
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,6 +124,10 @@ const packages = {
 
   setIsLoading(false);   // ← أوقف التحميل أولاً
   setSuccess(true);      // ثم أظهر رسالة النجاح
+  setShowToast(true);
+  setTimeout(() => {
+    setShowToast(false);
+  }, 3000);
 
   setFormData({
     name: "",
@@ -180,68 +185,154 @@ const packages = {
         )}
 
         {/* CONTACT FORM */}
+
         <div className="bg-white p-10 rounded-2xl shadow-lg">
           <h1 className="text-2xl font-bold text-[#0f3443] mb-6">
             Start Your Project
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <input
-              type="text"
-              placeholder="Full Name"
-              required
-              value={formData.name}
-              className="w-full p-3 border rounded-lg"
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-            />
 
-            <input
-              type="email"
-              placeholder="Email Address"
-              required
-              value={formData.email}
-              className="w-full p-3 border rounded-lg"
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-            />
+  {/* NAME */}
+  <div className="relative w-full mt-6">
+    <input
+      id="name"
+      type="text"
+      required
+      placeholder=" "
+      autoComplete="off"
+      value={formData.name}
+      onChange={(e) =>
+        setFormData({ ...formData, name: e.target.value })
+      }
+      className="peer w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg
+      focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+    />
 
-            <textarea
-              placeholder="Tell me about your project..."
-              required
-              rows={4}
-              value={formData.message}
-              className="w-full p-3 border rounded-lg"
-              onChange={(e) =>
-                setFormData({ ...formData, message: e.target.value })
-              }
-            />
+    <label
+      htmlFor="name"
+      className="absolute left-4 top-2 text-gray-500 text-sm transition-all
+      bg-white px-1
+      peer-placeholder-shown:top-4
+      peer-placeholder-shown:text-base
+      peer-placeholder-shown:text-gray-400
+      peer-focus:top-2
+      peer-focus:text-sm
+      peer-focus:text-blue-500"
+    >
+      Full Name
+    </label>
+  </div>
 
-            <button
-  type="submit"
-  disabled={isLoading}
-  className="w-full bg-[#0f3443] text-white py-3 rounded-lg hover:bg-[#0c2a36] transition disabled:opacity-70 flex items-center justify-center gap-2"
->
-  {isLoading ? (
-    <>
-      <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-      Sending...
-    </>
-  ) : (
-    "Request Proposal"
-  )}
-</button>
-{success && (
-  <p className="text-green-600 text-sm mt-4 text-center">
-    Your request has been sent successfully.
-  </p>
-)}
-          </form>
-        </div>
+  {/* EMAIL */}
+  <div className="relative w-full mt-6">
+    <input
+      id="email"
+      type="email"
+      required
+      placeholder=" "
+      autoComplete="off"
+      value={formData.email}
+      onChange={(e) =>
+        setFormData({ ...formData, email: e.target.value })
+      }
+      className="peer w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg
+      focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+    />
 
+    <label
+      htmlFor="email"
+      className="absolute left-4 top-2 text-gray-500 text-sm transition-all
+      bg-white px-1
+      peer-placeholder-shown:top-4
+      peer-placeholder-shown:text-base
+      peer-placeholder-shown:text-gray-400
+      peer-focus:top-2
+      peer-focus:text-sm
+      peer-focus:text-blue-500"
+    >
+      Email Address
+    </label>
+  </div>
+
+  {/* MESSAGE */}
+  <div className="relative w-full mt-6">
+    <textarea
+      id="message"
+      required
+      rows={4}
+      placeholder=" "
+      autoComplete="off"
+      value={formData.message}
+      onChange={(e) =>
+        setFormData({ ...formData, message: e.target.value })
+      }
+      className="peer w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg resize-none
+      focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+    />
+
+    <label
+      htmlFor="message"
+      className="absolute left-4 top-2 text-gray-500 text-sm transition-all
+      bg-white px-1
+      peer-placeholder-shown:top-4
+      peer-placeholder-shown:text-base
+      peer-placeholder-shown:text-gray-400
+      peer-focus:top-2
+      peer-focus:text-sm
+      peer-focus:text-blue-500"
+    >
+      Tell me about your project
+    </label>
+  </div>
+
+  {/* BUTTON */}
+  <button
+    type="submit"
+    disabled={isLoading}
+    className="w-full bg-[#0f3443] text-white py-3 rounded-lg hover:bg-[#0c2a36] transition disabled:opacity-70 flex items-center justify-center gap-2"
+  >
+    {isLoading ? (
+      <>
+        <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        Sending...
+      </>
+    ) : (
+      "Request Proposal"
+    )}
+  </button>
+
+  {/* SUCCESS */}
+  {showToast && (
+  <div className="fixed inset-0 flex items-center justify-center z-50">
+    
+    {/* خلفية خفيفة */}
+    <div className="absolute inset-0 bg-black/20"></div>
+
+    {/* الصندوق */}
+    <div className="relative bg-white px-6 py-5 rounded-xl shadow-xl flex items-center gap-3 animate-scale-in">
+      
+      <div className="w-8 h-8 flex items-center justify-center bg-green-500 text-white rounded-full">
+        ✓
       </div>
-    </section>
+
+      <p className="text-sm font-medium text-gray-700">
+        Your request hass been sent
+      </p>
+
+    </div>
+  </div>
+)}
+  
+
+  {/* text */}
+
+ 
+</form>
+  </div>
+    
+
+  </div>
+</section>
   );
 }
