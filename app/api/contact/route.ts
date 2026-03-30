@@ -2,10 +2,19 @@ import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, message, package: selectedPackage } = await req.json();
+    const body = await req.json();
+
+    console.log("ENV:", process.env.EMAIL_USER);
+    console.log("BODY:", body);
+
+    const name = body.name || "";
+    const email = body.email || "";
+    const message = body.message || "";
+    const selectedPackage = body.package || "Not specified";
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,

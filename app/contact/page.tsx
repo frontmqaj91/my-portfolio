@@ -102,7 +102,9 @@ const packages = {
   const [showToast, setShowToast] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+
+    console.log("FORM DATA:",formData)
 
     setIsLoading(true);
     setSuccess(false);
@@ -117,30 +119,33 @@ const packages = {
           ...formData,
           package: selectedPackage,
         }),
-      });
+      })
+
+      console.log("RESPONSE STATUS:", response.status)
 
       if (response.ok) {
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+        console.log("SUCCESS")
+        setIsLoading(false);
+        setSuccess(true);
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 3000);
 
-  setIsLoading(false);   // ← أوقف التحميل أولاً
-  setSuccess(true);      // ثم أظهر رسالة النجاح
-  setShowToast(true);
-  setTimeout(() => {
-    setShowToast(false);
-  }, 3000);
-
-  setFormData({
-    name: "",
-    email: "",
-    message: "",
-  });
-
-      
+        setFormData({
+          name: "",
+          email: "",
+          message: "",
+        });
       } else {
+        console.log("FAILED")
         alert("Something went wrong.");
       }
     } catch (error) {
+      console.error("ERROR:", error)
       alert("Server error.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
