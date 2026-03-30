@@ -1,6 +1,11 @@
+import { error } from "console";
 import nodemailer from "nodemailer";
 
 export async function POST(req:Request) {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    return Response.json({ error: "ENV NOT FOUND" }, { status: 500 });
+  }
+
   try {
     let body;
 
