@@ -21,48 +21,59 @@ try {
     );
   }
 
-  await resend.emails.send({
-    from: "FrontCraft <contact@frontcraftdev.com>",
-    to: "contact.frontcraft.dev@gmail.com",
-    replyTo: email,
-    subject: `New Project Request - ${selectedPackage}`,
-    html: `
-      <h2>New Client Request</h2>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Package:</strong> ${selectedPackage}</p>
-      <p><strong>Message:</strong> ${message}</p>
-    `,
-  });
+  try {
+    const adminEmail = await resend.emails.send({
+      from: "FrontCraft <contact@frontcraftdev.com>",
+      to: "contact.frontcraft.dev@gmail.com",
+      replyTo: email,
+      subject: `New - ${selectedPackage} Request from ${name}`,
+      html: `
+        <h2>New Client Request</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Package:</strong> ${selectedPackage}</p>
+        <p><strong>Message:</strong> ${message}</p>
+      `,
+    });
 
-  await resend.emails.send({
-    from: "FrontCraft <contact@frontcraftdev.com>",
-    to: email,
-    subject: "We received your request ✅",
-    html: `
-    <div style="font-family: Arial;">
-      <h2>Thank you for reaching out!</h2>
-      <p>Hi ${name}, 👋</p>
-      <p>Thanks for contacting <strong>FrontCraft</strong>.</p>
-      <p>We received your message and will reply within 24 hours.</p>
+    console.log("ADMIN SENT:", adminEmail);
+  } catch (error) {
+    console.error("ADMIN ERROR:", error);
+  }
 
-      <hr/>
+  try {
+    const clientEmail = await resend.emails.send({
+      from: "FrontCraft <contact@frontcraftdev.com>",
+      to: email,
+      subject: "We received your request ✅",
+      html: `
+      <div style="font-family: Arial;">
+        <h2>Thank you for reaching out!</h2>
+        <p>Hi ${name}, 👋</p>
+        <p>Thanks for contacting <strong>FrontCraft</strong>.</p>
+        <p>We received your message and will reply within 24 hours.</p>
+  
+        <hr/>
+  
+        <p><strong>Your message:</strong></p>
+        <p>${message}</p>
+  
+        <hr/>
+  
+        <p>Best regards,<br/>FrontCraft Team</p>
+      `,
+    });
 
-      <p><strong>Your message:</strong></p>
-      <p>${message}</p>
-
-      <hr/>
-
-      <p>Best regards,<br/>FrontCraft Team</p>
-    `,
-  });
-
-  return Response.json({ success: true});
-} catch (error) {
-  console.error("ERROR:", error);
-  return Response.json(
-    { error: "Something went wrong"},
-
-  );
-}
+    console.log("CLIENT SENT:", clientEmail);
+  } catch (error) {
+    console.error("CLIENT ERROR:", error);
+  }
+  
+    return Response.json({ success: true});
+  } catch (error) {
+    console.error("ERROR:", error);
+    return Response.json(
+      { error: "Something went wrong"},
+    );
+  }
 }
