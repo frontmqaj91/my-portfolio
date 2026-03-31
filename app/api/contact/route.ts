@@ -25,7 +25,7 @@ try {
     from: "FrontCraft <contact@frontcraftdev.com>",
     to: "contact.frontcraft.dev@gmail.com",
     replyTo: email,
-    subject: `New Project Request - ${selectedPackage}`,
+    subject: `New Request from - ${name} - @{new Date().toLocalTimeString()}`,
     html: `
       <h2>New Client Request</h2>
       <p><strong>Name:</strong> ${name}</p>
