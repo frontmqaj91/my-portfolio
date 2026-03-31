@@ -22,8 +22,9 @@ try {
   }
 
   await resend.emails.send({
-    from: "contact@frontcraftdev.com",
+    from: "FrontCraft <contact@frontcraftdev.com>",
     to: "contact.frontcraft.dev@gmail.com",
+    replyTo: email,
     subject: `New Project Request - ${selectedPackage}`,
     html: `
       <h2>New Client Request</h2>
