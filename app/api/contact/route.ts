@@ -35,6 +35,28 @@ try {
     `,
   });
 
+  await resend.emails.send({
+    from: "FrontCraft <contact@frontcraftdev.com>",
+    to: email,
+    subject: "We received your request ✅",
+    html: `
+    <div style="font-family: Arial;">
+      <h2>Thank you for reaching out!</h2>
+      <p>Hi ${name}, 👋</p>
+      <p>Thanks for contacting <strong>FrontCraft</strong>.</p>
+      <p>We received your message and will reply within 24 hours.</p>
+
+      <hr/>
+
+      <p><strong>Your message:</strong></p>
+      <p>${message}</p>
+
+      <hr/>
+
+      <p>Best regards,<br/>FrontCraft Team</p>
+    `,
+  });
+
   return Response.json({ success: true});
 } catch (error) {
   console.error("ERROR:", error);
