@@ -145,46 +145,62 @@ export default function Home() {
             Projects
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
-             <div className="bg-[#0f3443] p-6 rounded-2xl shadow-xl hover:scale-105 transition">
-    <h3 className="text-xl font-semibold mb-3 text-white">
-      Ahmed Clinic Booking System
-    </h3>
+    <div className="grid md:grid-cols-3 gap-8">
+      <div className="bg-[#0f3443] p-6 rounded-2xl shadow-xl hover:scale-105 transition">
+        <h3 className="text-xl font-semibold mb-3 text-white">
+          Ahmed Clinic_Booking System
+        </h3>
+        <p className="text-gray-200 mb-4">
+          نظام حجز مواعيد طبي متكامل مبني باستخدام Next.js و Tailwind.
+        </p>
+        <a
+          href="https://ahmed-clinic.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block mt-4 bg-[#2dd4bf] hover:bg-gray-200 text-[#0f3443] px-4 py-2 rounded-lg"
+        >
+          View Live Project
+        </a>
+      </div>
 
-    <p className="text-gray-200 mb-4">
-      نظام حجز مواعيد طبي متكامل مبني باستخدام Next.js و Tailwind.
-    </p>
-    <a
-    href="https://ahmed-clinic-qrl6.vercel.app/"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="inline-block mt-4 bg-[#2dd4bf] hover:bg-gray-200 text-[#0f3443] px-4 py-2 rounded-lg"
-    >
-      View Live Project
-    </a>
+      <div className="bg-[#0f3443] p-6 rounded-2xl shadow-xl hover:scale-105 transition">
+        <h3 className="text-xl font-semibold mb-3 text-white">
+          Renne&apos;s Hair Styling _ Booking Web App
+        </h3>
+        <p className="text-gray-200 mb-4">
+          Built a full-stack hair salon booking system using Vanilla HTML/CSS/JS.
+        </p>
+        <a
+          href="https://rennes-hair-styling.vercel.app/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block mt-4 bg-[#2dd4bf] hover:bg-gray-200 text-[#0f3443] px-4 py-2 rounded-lg"
+        >
+          View Live Project
+        </a>
+      </div>
+
+      <div className="bg-[#0f3443] p-6 rounded-2xl shadow-xl hover:scale-105 transition">
+        <h3 className="text-xl font-semibold mb-3 text-white">Business Website</h3>
+        <p className="text-gray-200 mb-4">
+          Modern responsiv website built with next.js and Tailwind Css.
+        </p>
+      </div>
+
+      <div className="bg-[#0f3443] p-6 rounded-2xl shadow-xl hover:scale-105 transition">
+        <h3 className="text-xl font-semibold mb-3 text-white">E-Commerce Platform</h3>
+        <p className="text-gray-200 mb-4">
+          Full-stack online store with authentication and payments.
+        </p>
+      </div>
+
+      <div className="bg-[#0f3443] p-6 rounded-2xl shadow-xl hover:scale-105 transition">
+        <h3 className="text-xl font-semibold mb-3 text-white">Portfolio Website</h3>
+        <p className="text-gray-200 mb-4">
+          High-performance personal portfolio with clean UI.
+        </p>
+      </div>
     </div>
-
-            <div className="bg-[#0f3443] p-6 rounded-2xl shadow-xl hover:scale-105 transition">
-              <h3 className="text-xl font-semibold mb-3 text-white">Business Website</h3>
-              <p className="text-gray-200 mb-4">
-                Modern responsiv website built with next.js and Tailwind Css.
-              </p>
-            </div>
-
-            <div className="bg-[#0f3443] p-6 rounded-2xl shadow-xl hover:scale-105 transition">
-              <h3 className="text-xl font-semibold mb-3 text-white">E-Commerce Platform</h3>
-              <p className="text-gray-200 mb-4">
-                Full-stack online store with authentication and payments.
-              </p>
-            </div>
-
-            <div className="bg-[#0f3443] p-6 rounded-2xl shadow-xl hover:scale-105 transition">
-              <h3 className="text-xl font-semibold mb-3 text-white">Portfolio Website</h3>
-              <p className="text-gray-200 mb-4">
-                High-performance personal portfolio with clean UI.
-              </p>
-            </div>
-          </div>
         </section>
 
         {/* Pricing */}
