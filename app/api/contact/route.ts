@@ -1,3 +1,4 @@
+import { error } from "console";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -22,7 +23,7 @@ try {
 
   try {
     const adminEmail = await resend.emails.send({
-      from: "FrontCraft <info@frontcraftdev.com>",
+      from: "FrontCraft <contact@frontcraftdev.com>",
       to: "contact.frontcraft.dev@gmail.com",
       replyTo: email,
       subject: `New - ${selectedPackage} Request from ${name}`,
@@ -42,14 +43,14 @@ try {
 
   try {
     const clientEmail = await resend.emails.send({
-      from: "FrontCraft <info@frontcraftdev.com>",
+      from: "FrontCraft <contact@frontcraftdev.com>",
       to: email,
       subject: "We received your request ✅",
       html: `
       <div style="font-family: Arial;">
         <h2>Thank you for reaching out!</h2>
         <p>Hi ${name}, 👋</p>
-        <p>Thanks for contacting <strong>FrontCraftDev</strong>.</p>
+        <p>Thanks for contacting <strong>FrontCraft</strong>.</p>
         <p>We received your message and will reply within 24 hours.</p>
   
         <hr/>
@@ -59,7 +60,7 @@ try {
   
         <hr/>
   
-        <p>Best regards,<br/>FrontCraftDev Team</p>
+        <p>Best regards,<br/>FrontCraft Team</p>
       `,
     });
 
