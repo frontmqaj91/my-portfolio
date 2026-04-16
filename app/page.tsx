@@ -186,7 +186,10 @@ export default function Home() {
   }, [lang]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 30);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 10);
+      setMenuOpen(false);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -273,16 +276,19 @@ export default function Home() {
 
         {/* Mobile drawer */}
         {menuOpen && (
-          <div className="md:hidden glass-dark border-t border-white/6">
-            {navKeys.map((k) => (
-              <a
-                key={k} href={`#${k}`} onClick={() => setMenuOpen(false)}
-                className="block px-6 py-3.5 text-slate-400 hover:text-white hover:bg-white/4 transition-colors border-b border-white/4 text-sm"
-              >
-                {t.nav[k]}
-              </a>
-            ))}
-          </div>
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
+            <div className="relative z-50 md:hidden glass-dark border-t border-white/6">
+              {navKeys.map((k) => (
+                <a
+                  key={k} href={`#${k}`} onClick={() => setMenuOpen(false)}
+                  className="block px-6 py-3.5 text-slate-400 hover:text-white hover:bg-white/4 transition-colors border-b border-white/4 text-sm"
+                >
+                  {t.nav[k]}
+                </a>
+              ))}
+            </div>
+          </>
         )}
       </nav>
 
