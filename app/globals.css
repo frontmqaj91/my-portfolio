@@ -1,68 +1,209 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* ═══════════════════════════════════════
+   BRAND TOKENS
+═══════════════════════════════════════ */
 :root {
-  --background: #f3f3fc;
-  --card: #e4d3d3;
-  --primary: #D4A574;
-  --primary-hover: #b8925e;
-  --text-main: #1f1f1f;
-  --text-muted: #ddd2c5;
-  --border-soft: #d5cbbe;
+  --navy:    #0A0F1E;
+  --navy-2:  #0D1526;
+  --navy-3:  #111827;
+  --e-blue:  #1E3A8A;
+  --b-blue:  #3B82F6;
+  --gold:    #C9A84C;
+  --gold-d:  #b8942e;
+
+  /* legacy compat (contact/pricing) */
+  --primary:        #3B82F6;
+  --primary-hover:  #1d4ed8;
+  --accent:         #C9A84C;
+  --background:     #0A0F1E;
+  --surface-2:      #0D1526;
+  --text-main:      #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted:     #64748B;
+  --border:         rgba(255,255,255,0.08);
+  --border-soft:    rgba(255,255,255,0.06);
+  --shadow-blue:    0 0 30px rgba(59,130,246,.35);
 }
 
-@layer theme {
-  :root {
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
-  }
-}
-
+/* ═══════════════════════════════════════
+   BASE
+═══════════════════════════════════════ */
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-html {
-  scroll-behavior: smooth;
+  background: var(--navy);
+  color: #CBD5E1;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* تحسين تفاعل الأزرار على الموبايل */
-button,
-a {
-  -webkit-tap-highlight-color: transparent;
-}
+html[lang="ar"] body,
+html[dir="rtl"] body { font-family: 'Amiri', serif; }
 
-button:active
-a:active {
-  transform: scale(0.9);
-  opacity: 0.8;
-}
+button, a { -webkit-tap-highlight-color: transparent; }
 
-/* scrollbar styles */
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-thumb {
-  background: #ababab;
+/* ═══════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════ */
+::-webkit-scrollbar        { width: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  {
+  background: linear-gradient(to bottom, #1E3A8A, #C9A84C);
   border-radius: 10px;
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+/* ═══════════════════════════════════════
+   FONT UTILITIES
+═══════════════════════════════════════ */
+.font-arabic { font-family: 'Amiri', serif; }
+.font-latin  { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+/* ═══════════════════════════════════════
+   GLASSMORPHISM
+═══════════════════════════════════════ */
+.glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.08);
 }
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.glass-dark {
+  background: rgba(10,15,30,0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.07);
 }
 
-.animate-scale-in {
-  animation: scale-in 0.25s ease;
+/* ═══════════════════════════════════════
+   GRADIENT TEXT
+═══════════════════════════════════════ */
+.grad-text {
+  background: linear-gradient(135deg, #3B82F6 0%, #C9A84C 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
+.grad-text-blue {
+  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ═══════════════════════════════════════
+   DOT GRID BACKGROUND
+═══════════════════════════════════════ */
+.dot-grid {
+  background-image: radial-gradient(rgba(59,130,246,0.18) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* ═══════════════════════════════════════
+   SECTION LINE DIVIDER
+═══════════════════════════════════════ */
+.section-line {
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(59,130,246,0.4),
+    rgba(201,168,76,0.4),
+    transparent
+  );
+}
+
+/* ═══════════════════════════════════════
+   SCROLL FADE-IN
+═══════════════════════════════════════ */
+.fade-in {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .7s ease, transform .7s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════
+   ENTRANCE ANIMATION
+═══════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fadeUp .8s ease both; }
+.delay-1 { animation-delay: .15s; }
+.delay-2 { animation-delay: .3s;  }
+.delay-3 { animation-delay: .45s; }
+.delay-4 { animation-delay: .6s;  }
+
+/* ═══════════════════════════════════════
+   FLOATING SHAPES
+═══════════════════════════════════════ */
+@keyframes floatA {
+  0%,100% { transform: translateY(0)   rotate(0deg); }
+  50%     { transform: translateY(-18px) rotate(10deg); }
+}
+@keyframes floatB {
+  0%,100% { transform: translateY(0)  rotate(0deg); }
+  50%     { transform: translateY(14px) rotate(-7deg); }
+}
+@keyframes floatC {
+  0%,100% { transform: translateY(0)   rotate(0deg); }
+  50%     { transform: translateY(-10px) rotate(5deg); }
+}
+.float-a { animation: floatA 8s  ease-in-out infinite; }
+.float-b { animation: floatB 10s ease-in-out infinite; }
+.float-c { animation: floatC 6s  ease-in-out infinite; }
+
+/* ═══════════════════════════════════════
+   BADGE PULSE
+═══════════════════════════════════════ */
+@keyframes badgePulse {
+  0%,100% { box-shadow: 0 0 0 0   rgba(201,168,76,.6); }
+  50%     { box-shadow: 0 0 0 7px rgba(201,168,76,0);  }
+}
+.badge-pulse { animation: badgePulse 2.2s ease-in-out infinite; }
+
+/* ═══════════════════════════════════════
+   TOAST POP
+═══════════════════════════════════════ */
+@keyframes popIn {
+  from { opacity: 0; transform: scale(.82); }
+  to   { opacity: 1; transform: scale(1);   }
+}
+.animate-pop-in { animation: popIn .28s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* ═══════════════════════════════════════
+   GLOW BORDERS (hover helpers)
+═══════════════════════════════════════ */
+.glow-blue:hover {
+  box-shadow: 0 0 22px rgba(59,130,246,.35),
+              inset 0 0 22px rgba(59,130,246,.04);
+  border-color: rgba(59,130,246,.45) !important;
+}
+.glow-gold:hover {
+  box-shadow: 0 0 22px rgba(201,168,76,.35),
+              inset 0 0 22px rgba(201,168,76,.04);
+  border-color: rgba(201,168,76,.45) !important;
+}
+
+/* ═══════════════════════════════════════
+   NAV LINK UNDERLINE
+═══════════════════════════════════════ */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -3px;
+  width: 0; height: 2px;
+  background: linear-gradient(to right, #3B82F6, #C9A84C);
+  border-radius: 2px;
+  transition: width .25s ease;
+}
+.nav-link:hover::after { width: 100%; }

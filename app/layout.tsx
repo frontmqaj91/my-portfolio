@@ -1,40 +1,39 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://frontcraftdev.com"),
-  title: "FrontCraftDev | Modern Website for Your Business",
+  title: "FrontCraftDev | حلول المواقع الإلكترونية والتطبيقات",
   description:
-  "I design and build modern websites that help businesses grow and stand out online.",
-  alternates: {
-    canonical: "/",
-  },
+    "We build modern websites and mobile apps that help businesses grow. نبني مواقع وتطبيقات تساعد الأعمال على النمو.",
+  alternates: { canonical: "/" },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased} antialiased
-        bg-[var(--background)] text-[var(--text-main)] min-h-screen`}
-      >
-        {children}
-      </body>
+    <html lang="en" dir="ltr" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body className="antialiased min-h-screen bg-[#0A0F1E]">{children}</body>
     </html>
   );
 }

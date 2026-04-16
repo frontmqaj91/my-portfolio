@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(npx eslint *)",
+      "Bash(npx next *)",
+      "Bash(node -e \"const ts = require\\('typescript'\\); const prog = ts.createProgram\\(['app/layout.tsx'], {strict:true, jsx: ts.JsxEmit.ReactJSX, moduleResolution: ts.ModuleResolutionKind.Bundler}\\); const diags = ts.getPreEmitDiagnostics\\(prog\\); diags.forEach\\(d => console.log\\(ts.flattenDiagnosticMessageText\\(d.messageText, '\\\\n'\\), 'at line', d.file?.getLineAndCharacterOfPosition\\(d.start || 0\\).line + 1\\)\\);\")",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(xargs grep *)",
+      "Bash(ls \"c:/my-portfolio\"/*.d.ts)",
+      "Bash(ls \"c:/my-portfolio/app\"/*.d.ts)",
+      "Bash(npm ls *)",
+      "Bash(npm install *)",
+      "Bash(npm audit *)",
+      "Bash(npm show *)"
+    ]
+  }
+}
