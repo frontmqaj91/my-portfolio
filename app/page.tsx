@@ -333,8 +333,11 @@ export default function Home() {
           </div>
 
           {/* Headline */}
-          <h1 className="animate-fade-up delay-1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl
-            font-bold leading-[1.1] mb-7 grad-text">
+          <h1
+            className="animate-fade-up delay-1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl
+              font-bold pt-2 pb-4 mb-7 grad-text"
+            style={{ lineHeight: isAr ? "1.5" : "1.1" }}
+          >
             {t.hero.title}
           </h1>
 
