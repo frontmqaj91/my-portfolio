@@ -80,10 +80,26 @@ button, a { -webkit-tap-highlight-color: transparent; }
    GRADIENT TEXT
 ═══════════════════════════════════════ */
 .grad-text {
-  background: linear-gradient(135deg, #3B82F6 0%, #C9A84C 100%);
+  background: linear-gradient(
+    135deg,
+    #3B82F6 0%,
+    #60A5FA 25%,
+    #C9A84C 50%,
+    #60A5FA 75%,
+    #3B82F6 100%
+  );
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: gradShift 8s ease-in-out infinite;
+}
+@keyframes gradShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .grad-text { animation: none; }
 }
 .grad-text-blue {
   background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
@@ -207,3 +223,632 @@ button, a { -webkit-tap-highlight-color: transparent; }
   transition: width .25s ease;
 }
 .nav-link:hover::after { width: 100%; }
+
+/* ═══════════════════════════════════════
+   3D PERSPECTIVE & TILT
+═══════════════════════════════════════ */
+.scene-3d {
+  perspective: 1400px;
+  perspective-origin: 50% 30%;
+}
+
+.card-3d {
+  transform-style: preserve-3d;
+  transition:
+    transform 0.55s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.55s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+.card-3d:hover {
+  transform: rotateX(7deg) rotateY(-9deg) translateZ(28px) scale(1.02);
+  box-shadow:
+    0 30px 60px -18px rgba(0,0,0,0.7),
+    0 0 50px rgba(59,130,246,0.18);
+}
+.card-3d:hover.gold-tilt {
+  box-shadow:
+    0 30px 60px -18px rgba(0,0,0,0.7),
+    0 0 50px rgba(201,168,76,0.22);
+}
+/* RTL — flip the Y rotation so the tilt feels natural in Arabic */
+html[dir="rtl"] .card-3d:hover {
+  transform: rotateX(7deg) rotateY(9deg) translateZ(28px) scale(1.02);
+}
+
+.card-3d > * { transform: translateZ(0); }
+.card-3d .lift-1,
+.card-3d .lift-2,
+.card-3d .lift-3 {
+  transition: transform 0.55s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.card-3d:hover .lift-1 { transform: translateZ(24px); }
+.card-3d:hover .lift-2 { transform: translateZ(42px); }
+.card-3d:hover .lift-3 { transform: translateZ(60px); }
+
+/* 3D button press */
+.btn-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+.btn-3d:hover {
+  transform: translateZ(10px) translateY(-2px);
+}
+.btn-3d:active {
+  transform: translateZ(2px) translateY(1px) scale(0.98);
+}
+
+/* Floating shape parallax depth */
+.depth-near { transform: translateZ(60px); }
+.depth-mid  { transform: translateZ(20px); }
+.depth-far  { transform: translateZ(-40px); }
+
+/* ═══════════════════════════════════════
+   3D BACKGROUND SCENE — code & web symbols
+═══════════════════════════════════════ */
+.bg-3d {
+  position: fixed;
+  inset: 0;
+  perspective: 1600px;
+  perspective-origin: 50% 40%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-3d-symbol {
+  position: absolute;
+  font-family: 'Plus Jakarta Sans', ui-monospace, monospace;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  user-select: none;
+  transform-style: preserve-3d;
+  will-change: transform;
+  text-shadow: 0 0 30px currentColor;
+  filter: blur(0.3px);
+}
+
+@keyframes orbit-a {
+  0%   { transform: translate3d(0,   0,   -200px) rotateX(0deg)    rotateY(0deg)    rotateZ(0deg);   }
+  50%  { transform: translate3d(40px,-30px, 100px) rotateX(180deg)  rotateY(180deg)  rotateZ(90deg);  }
+  100% { transform: translate3d(0,   0,   -200px) rotateX(360deg)  rotateY(360deg)  rotateZ(180deg); }
+}
+@keyframes orbit-b {
+  0%   { transform: translate3d(0,    0,    50px)  rotateX(0deg)    rotateY(0deg);   }
+  50%  { transform: translate3d(-30px, 40px,-150px) rotateX(-180deg) rotateY(180deg); }
+  100% { transform: translate3d(0,    0,    50px)  rotateX(-360deg) rotateY(360deg); }
+}
+@keyframes orbit-c {
+  0%   { transform: translate3d(0,    0,   -100px) rotateY(0deg)    rotateZ(0deg);    }
+  50%  { transform: translate3d(50px, 20px, 80px)  rotateY(180deg)  rotateZ(-180deg); }
+  100% { transform: translate3d(0,    0,   -100px) rotateY(360deg)  rotateZ(-360deg); }
+}
+@keyframes orbit-d {
+  0%   { transform: translate3d(0,    0,    0)    rotateX(0deg)    rotateZ(0deg);   }
+  50%  { transform: translate3d(-40px,-50px,-80px) rotateX(180deg)  rotateZ(180deg); }
+  100% { transform: translate3d(0,    0,    0)    rotateX(360deg)  rotateZ(360deg); }
+}
+
+.orbit-a { animation: orbit-a 22s ease-in-out infinite; }
+.orbit-b { animation: orbit-b 28s ease-in-out infinite; }
+.orbit-c { animation: orbit-c 18s ease-in-out infinite; }
+.orbit-d { animation: orbit-d 32s ease-in-out infinite; }
+
+/* Pause on reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .orbit-a, .orbit-b, .orbit-c, .orbit-d { animation: none; }
+}
+
+/* ═══════════════════════════════════════
+   FLIP CARD (contact)
+═══════════════════════════════════════ */
+.flip-card {
+  display: block;
+  perspective: 1000px;
+  cursor: pointer;
+}
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-card-back { transform: rotateY(180deg); }
+
+@media (hover: hover) {
+  .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+}
+.flip-card:focus-visible .flip-card-inner,
+.flip-card:active .flip-card-inner { transform: rotateY(180deg); }
+
+/* RTL — flip the other way so the spin direction feels natural */
+html[dir="rtl"] .flip-card-back { transform: rotateY(-180deg); }
+@media (hover: hover) {
+  html[dir="rtl"] .flip-card:hover .flip-card-inner { transform: rotateY(-180deg); }
+}
+html[dir="rtl"] .flip-card:focus-visible .flip-card-inner,
+html[dir="rtl"] .flip-card:active .flip-card-inner { transform: rotateY(-180deg); }
+
+
+/* ═══════════════════════════════════════
+   CURSOR SPOTLIGHT
+═══════════════════════════════════════ */
+.cursor-spotlight {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 700px;
+  height: 700px;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(59,130,246,0.13) 0%,
+    rgba(96,165,250,0.06) 35%,
+    transparent 65%
+  );
+  mix-blend-mode: screen;
+  transform: translate(-100vw, -100vh);
+  will-change: transform;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.cursor-spotlight.is-active { opacity: 1; }
+
+/* Hide on touch devices — no cursor to follow */
+@media (hover: none) {
+  .cursor-spotlight { display: none; }
+}
+
+/* ═══════════════════════════════════════
+   SCROLL PROGRESS BAR
+═══════════════════════════════════════ */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(to right, #1E3A8A 0%, #3B82F6 50%, #C9A84C 100%);
+  z-index: 60;
+  box-shadow: 0 0 12px rgba(59,130,246,0.6);
+  will-change: width;
+  transition: width 0.05s linear;
+}
+
+/* ═══════════════════════════════════════
+   MAGNETIC BUTTON
+═══════════════════════════════════════ */
+.magnetic {
+  transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+
+/* ═══════════════════════════════════════
+   TECH STACK MARQUEE
+═══════════════════════════════════════ */
+.marquee {
+  position: relative;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+          mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+.marquee-track {
+  display: flex;
+  gap: 3rem;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+html[dir="rtl"] .marquee-track { animation-direction: reverse; }
+
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  color: rgba(203,213,225,0.5);
+  white-space: nowrap;
+  transition: color 0.25s ease;
+}
+.marquee-item:hover { color: #fff; }
+.marquee-item .glyph { color: #3B82F6; font-size: 1.3rem; }
+.marquee-item .glyph.gold { color: #C9A84C; }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+/* ═══════════════════════════════════════
+   BACK-TO-TOP BUTTON  (with progress ring)
+═══════════════════════════════════════ */
+.back-to-top {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(10, 15, 30, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(24px) scale(0.8);
+  pointer-events: none;
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.back-to-top.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.back-to-top:hover {
+  border-color: rgba(201, 168, 76, 0.6);
+  box-shadow: 0 0 24px rgba(201, 168, 76, 0.35);
+}
+.back-to-top:active { transform: scale(0.92); }
+
+.back-to-top .ring {
+  position: absolute;
+  inset: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+.back-to-top .ring-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 3;
+}
+.back-to-top .ring-progress {
+  fill: none;
+  stroke: url(#btt-grad);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 289;
+  stroke-dashoffset: 289;
+  transition: stroke-dashoffset 0.08s linear;
+}
+.back-to-top .arrow {
+  width: 18px;
+  height: 18px;
+  color: #C9A84C;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.back-to-top:hover .arrow { transform: translateY(-3px); }
+
+/* RTL — bottom-left */
+html[dir="rtl"] .back-to-top { right: auto; left: 28px; }
+
+/* ═══════════════════════════════════════
+   FILM GRAIN OVERLAY
+═══════════════════════════════════════ */
+.film-grain {
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.85'/></svg>");
+  animation: grainShift 0.5s steps(6) infinite;
+}
+@keyframes grainShift {
+  0%   { transform: translate(0,    0);    }
+  10%  { transform: translate(-5%, -5%);   }
+  20%  { transform: translate(-10%, 5%);   }
+  30%  { transform: translate(5%,  -10%);  }
+  40%  { transform: translate(-5%,  15%);  }
+  50%  { transform: translate(-10%, 5%);   }
+  60%  { transform: translate(15%,  0);    }
+  70%  { transform: translate(0,    10%);  }
+  80%  { transform: translate(-15%, 0);    }
+  90%  { transform: translate(10%,  5%);   }
+  100% { transform: translate(0,    0);    }
+}
+@media (prefers-reduced-motion: reduce) {
+  .film-grain { animation: none; }
+}
+
+/* ═══════════════════════════════════════
+   BOOT SPLASH — covers page until React mounts + lang is set
+═══════════════════════════════════════ */
+.boot-splash {
+  position: fixed;
+  inset: 0;
+  background: #0A0F1E;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s linear 0.5s;
+}
+.boot-splash.is-ready {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s linear 0.5s;
+}
+.boot-splash-logo {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  letter-spacing: -0.02em;
+}
+.boot-splash-bar {
+  width: 140px;
+  height: 2px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+.boot-splash-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    #3B82F6 40%,
+    #C9A84C 60%,
+    transparent 100%
+  );
+  animation: bootBar 1.2s ease-in-out infinite;
+}
+@keyframes bootBar {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%);  }
+}
+.boot-splash-tag {
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(148,163,184,0.5);
+}
+
+/* ═══════════════════════════════════════
+   HERO WORD REVEAL — staggered fade-up per word
+═══════════════════════════════════════ */
+.word-reveal {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(28px);
+  animation: wordIn 0.85s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+@keyframes wordIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .word-reveal { opacity: 1; transform: none; animation: none; }
+}
+
+/* ═══════════════════════════════════════
+   AURORA ORBS — soft drifting glows behind hero
+═══════════════════════════════════════ */
+.aurora-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+  pointer-events: none;
+  will-change: transform;
+}
+.aurora-orb.a {
+  width: 480px; height: 480px;
+  top: -10%; left: -8%;
+  background: radial-gradient(circle, rgba(59,130,246,0.55) 0%, transparent 65%);
+  animation: aurorA 18s ease-in-out infinite;
+}
+.aurora-orb.b {
+  width: 520px; height: 520px;
+  top: 20%; right: -12%;
+  background: radial-gradient(circle, rgba(201,168,76,0.45) 0%, transparent 65%);
+  animation: aurorB 22s ease-in-out infinite;
+}
+.aurora-orb.c {
+  width: 380px; height: 380px;
+  bottom: 5%; left: 30%;
+  background: radial-gradient(circle, rgba(139,92,246,0.4) 0%, transparent 65%);
+  animation: aurorC 20s ease-in-out infinite;
+}
+@keyframes aurorA {
+  0%, 100% { transform: translate(0, 0)       scale(1);   }
+  50%      { transform: translate(80px, 40px) scale(1.1); }
+}
+@keyframes aurorB {
+  0%, 100% { transform: translate(0, 0)         scale(1);    }
+  50%      { transform: translate(-60px, -30px) scale(1.15); }
+}
+@keyframes aurorC {
+  0%, 100% { transform: translate(0, 0)        scale(1);    }
+  50%      { transform: translate(40px, -50px) scale(0.95); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aurora-orb { animation: none; }
+}
+
+/* ═══════════════════════════════════════
+   MAGIC BORDER — traveling conic gradient
+═══════════════════════════════════════ */
+@property --magic-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+.magic-border {
+  background:
+    linear-gradient(to bottom, rgba(201,168,76,0.08) 0%, #0A0F1E 100%) padding-box,
+    conic-gradient(
+      from var(--magic-angle, 0deg),
+      transparent          0deg,
+      rgba(201,168,76,0.95) 70deg,
+      rgba(96,165,250,0.95) 140deg,
+      transparent          200deg,
+      transparent          290deg,
+      rgba(201,168,76,0.8)  360deg
+    ) border-box;
+  border: 1.5px solid transparent;
+  animation: spinMagic 4.5s linear infinite;
+}
+@keyframes spinMagic { to { --magic-angle: 360deg; } }
+@media (prefers-reduced-motion: reduce) {
+  .magic-border { animation: none; }
+}
+
+/* ═══════════════════════════════════════
+   CARD SPOTLIGHT — radial glow follows cursor inside card
+═══════════════════════════════════════ */
+.card-3d::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(59,130,246,0.16),
+    transparent 45%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 1;
+}
+.card-3d:hover::after { opacity: 1; }
+.card-3d.gold-tilt::after {
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(201,168,76,0.18),
+    transparent 45%
+  );
+}
+
+/* ═══════════════════════════════════════
+   GYROSCOPE TILT WRAPPER (mobile)
+═══════════════════════════════════════ */
+.gyro-tilt {
+  transform: translate3d(var(--tilt-x, 0), var(--tilt-y, 0), 0);
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+
+/* ═══════════════════════════════════════
+   TAP RIPPLE — Material-style ink on press
+═══════════════════════════════════════ */
+.tap-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0);
+  animation: tapRipple 0.7s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  z-index: 1;
+  mix-blend-mode: screen;
+}
+@keyframes tapRipple {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tap-ripple { animation: none; opacity: 0; }
+}
+
+/* ═══════════════════════════════════════
+   SCROLL HINT — bouncing chevron in hero
+═══════════════════════════════════════ */
+.scroll-hint {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  opacity: 0.65;
+  transition: opacity 0.4s ease;
+  z-index: 5;
+  pointer-events: none;
+}
+.scroll-hint.is-faded { opacity: 0; }
+.scroll-hint-label {
+  font-family: ui-monospace, monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.7);
+}
+.scroll-hint-chevron {
+  width: 18px;
+  height: 18px;
+  border-right: 2px solid rgba(96, 165, 250, 0.8);
+  border-bottom: 2px solid rgba(96, 165, 250, 0.8);
+  transform: rotate(45deg);
+  animation: chevronBounce 1.8s ease-in-out infinite;
+}
+@keyframes chevronBounce {
+  0%, 100% { transform: rotate(45deg) translate(0, 0);   opacity: 0.4; }
+  50%      { transform: rotate(45deg) translate(5px, 5px); opacity: 1;   }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint-chevron { animation: none; }
+}
+
+/* ═══════════════════════════════════════
+   SECTION LINE — draws itself when scrolled into view
+═══════════════════════════════════════ */
+.section-line {
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 1.1s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.section-line.visible {
+  transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-line { transform: scaleX(1); transition: none; }
+}

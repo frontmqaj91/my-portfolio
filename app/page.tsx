@@ -1,10 +1,50 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Footer from "./components/Footer";
 
 type Lang = "en" | "ar";
+
+/* ════════════════════════════════════════════════
+   COUNT-UP — animates a number from 0 to target when scrolled into view
+════════════════════════════════════════════════ */
+function CountUp({ value, duration = 1800 }: { value: string; duration?: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [count, setCount] = useState(0);
+  const match = value.match(/^(\d+)(.*)$/);
+  const target = match ? parseInt(match[1], 10) : 0;
+  const suffix = match ? match[2] : value;
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node || target === 0) return;
+    let started = false;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started) {
+          started = true;
+          let startTime: number | null = null;
+          const tick = (t: number) => {
+            if (startTime === null) startTime = t;
+            const progress = Math.min((t - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.floor(eased * target));
+            if (progress < 1) requestAnimationFrame(tick);
+            else setCount(target);
+          };
+          requestAnimationFrame(tick);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+}
 
 /* ════════════════════════════════════════════════
    TRANSLATIONS  (data unchanged)
@@ -37,6 +77,7 @@ const T = {
       viewLive: "View Live", comingSoon: "Coming Soon",
       webBadge: "Web", appBadge: "App",
       items: [
+        { title: "Mayz — Restaurant SaaS",             desc: "QR-based ordering platform for restaurants. Customers scan, browse the menu, and order directly from their table.", href: "https://www.mayz.app",                    badge: "web" as const },
         { title: "Ahmed Clinic — Booking System",      desc: "A complete medical appointment booking system built with Next.js and Tailwind.", href: "https://ahmed-clinic.vercel.app/",         badge: "web" as const },
         { title: "Renne's Hair Styling — Booking App", desc: "Full-stack hair salon booking system built with Vanilla HTML/CSS/JS.",           href: "https://rennes-hair-styling.vercel.app/", badge: "web" as const },
         { title: "Business Website",     desc: "Modern responsive website built with Next.js and Tailwind CSS.", href: null, badge: "web" as const },
@@ -111,6 +152,7 @@ We specialise in:
       viewLive: "عرض المشروع", comingSoon: "قريباً",
       webBadge: "موقع", appBadge: "تطبيق",
       items: [
+        { title: "Mayz — نظام إدارة المطاعم",      desc: "نظام طلبات يعتمد على رمز QR للمطاعم. يمسح العميل الرمز، يتصفّح القائمة، ويطلب مباشرة من طاولته.", href: "https://www.mayz.app",                    badge: "web" as const },
         { title: "عيادة أحمد — نظام الحجز",       desc: "نظام حجز مواعيد طبي متكامل مبني باستخدام Next.js و Tailwind.", href: "https://ahmed-clinic.vercel.app/",         badge: "web" as const },
         { title: "Renne's Hair — تطبيق الحجز",    desc: "نظام حجز متكامل لصالون تصفيف الشعر مبني بـ HTML/CSS/JS.",     href: "https://rennes-hair-styling.vercel.app/", badge: "web" as const },
         { title: "موقع شركة",                     desc: "موقع عصري متجاوب مبني بـ Next.js و Tailwind CSS.",             href: null,                                      badge: "web" as const },
@@ -194,14 +236,195 @@ export default function Home() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /* Scroll progress bar + back-to-top ring + scroll hint fade — single rAF pass */
   useEffect(() => {
-    const els = document.querySelectorAll<HTMLElement>(".fade-in");
+    const bar  = document.getElementById("scroll-progress");
+    const btn  = document.getElementById("back-to-top");
+    const hint = document.getElementById("scroll-hint");
+    const ring = btn?.querySelector<SVGCircleElement>(".ring-progress") ?? null;
+    if (!bar && !btn && !hint) return;
+
+    const CIRC = 2 * Math.PI * 46;
+    let frameId: number | null = null;
+
+    const update = () => {
+      const h   = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? h.scrollTop / max : 0;
+      if (bar)  bar.style.width = `${Math.min(Math.max(pct * 100, 0), 100)}%`;
+      if (ring) ring.style.strokeDashoffset = `${CIRC * (1 - pct)}`;
+      if (btn)  btn.classList.toggle("is-visible", h.scrollTop > 400);
+      if (hint) hint.classList.toggle("is-faded",  h.scrollTop > 60);
+      frameId = null;
+    };
+    const onScroll = () => {
+      if (frameId === null) frameId = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frameId !== null) cancelAnimationFrame(frameId);
+    };
+  }, []);
+
+  /* Gyroscope tilt parallax (mobile) — phone tilt shifts hero shapes */
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.DeviceOrientationEvent) return;
+    const layers = document.querySelectorAll<HTMLElement>(".gyro-tilt");
+    if (!layers.length) return;
+
+    let frameId: number | null = null;
+    let nx = 0, ny = 0;
+
+    const update = () => {
+      layers.forEach((el) => {
+        const depth = parseFloat(el.dataset.depth || "20");
+        el.style.setProperty("--tilt-x", `${nx * depth}px`);
+        el.style.setProperty("--tilt-y", `${ny * depth}px`);
+      });
+      frameId = null;
+    };
+    const onOrient = (e: DeviceOrientationEvent) => {
+      nx = Math.max(-1, Math.min(1, (e.gamma || 0) / 35));
+      ny = Math.max(-1, Math.min(1, ((e.beta || 0) - 45) / 35));
+      if (frameId === null) frameId = requestAnimationFrame(update);
+    };
+
+    type IOSDeviceOrientationEvent = typeof DeviceOrientationEvent & {
+      requestPermission?: () => Promise<"granted" | "denied">;
+    };
+    const DOE = DeviceOrientationEvent as unknown as IOSDeviceOrientationEvent;
+
+    if (typeof DOE.requestPermission === "function") {
+      // iOS 13+ — needs a user gesture to request permission
+      const onFirstTouch = async () => {
+        try {
+          const result = await DOE.requestPermission!();
+          if (result === "granted") {
+            window.addEventListener("deviceorientation", onOrient);
+          }
+        } catch { /* user denied or unavailable */ }
+      };
+      document.addEventListener("touchstart", onFirstTouch, { once: true });
+      return () => {
+        document.removeEventListener("touchstart", onFirstTouch);
+        window.removeEventListener("deviceorientation", onOrient);
+        if (frameId !== null) cancelAnimationFrame(frameId);
+      };
+    }
+
+    // Android & older iOS — just listen
+    window.addEventListener("deviceorientation", onOrient);
+    return () => {
+      window.removeEventListener("deviceorientation", onOrient);
+      if (frameId !== null) cancelAnimationFrame(frameId);
+    };
+  }, []);
+
+  /* Tap ripple — Material-style ink burst on every button press */
+  useEffect(() => {
+    const onPress = (e: PointerEvent) => {
+      const tgt = (e.target as HTMLElement | null)?.closest<HTMLElement>("button, .ripple-host");
+      if (!tgt || tgt.classList.contains("flip-card")) return;
+
+      const rect = tgt.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height) * 2;
+      const cs = getComputedStyle(tgt);
+      if (cs.position === "static")  tgt.style.position = "relative";
+      if (cs.overflow === "visible") tgt.style.overflow = "hidden";
+
+      const r = document.createElement("span");
+      r.className = "tap-ripple";
+      r.style.left   = `${e.clientX - rect.left}px`;
+      r.style.top    = `${e.clientY - rect.top}px`;
+      r.style.width  = `${size}px`;
+      r.style.height = `${size}px`;
+      tgt.appendChild(r);
+      setTimeout(() => r.remove(), 700);
+    };
+    document.addEventListener("pointerdown", onPress);
+    return () => document.removeEventListener("pointerdown", onPress);
+  }, []);
+
+  /* Magnetic CTA — button leans toward cursor when nearby */
+  useEffect(() => {
+    const btn = document.getElementById("hero-cta");
+    if (!btn) return;
+    const onMove = (e: MouseEvent) => {
+      const rect = btn.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 140) {
+        const strength = (1 - dist / 140) * 0.4;
+        btn.style.transform = `translate(${dx * strength}px, ${dy * strength}px)`;
+      } else {
+        btn.style.transform = "translate(0, 0)";
+      }
+    };
+    const onLeave = () => { btn.style.transform = "translate(0, 0)"; };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseleave", onLeave);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
+
+  /* Cursor spotlight tracker — direct DOM updates, rAF-throttled */
+  useEffect(() => {
+    const spot = document.getElementById("cursor-spotlight");
+    if (!spot) return;
+    let frameId: number | null = null;
+    let nextX = 0, nextY = 0;
+    const onMove = (e: MouseEvent) => {
+      nextX = e.clientX;
+      nextY = e.clientY;
+      spot.classList.add("is-active");
+      if (frameId === null) {
+        frameId = requestAnimationFrame(() => {
+          spot.style.transform = `translate(${nextX}px, ${nextY}px) translate(-50%, -50%)`;
+          frameId = null;
+        });
+      }
+    };
+    const onLeave = () => spot.classList.remove("is-active");
+    window.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseleave", onLeave);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseleave", onLeave);
+      if (frameId !== null) cancelAnimationFrame(frameId);
+    };
+  }, []);
+
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>(".fade-in, .section-line");
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("visible"); }),
       { threshold: 0.07 }
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
+  }, [lang]);
+
+  /* Card spotlight — radial glow follows cursor inside each .card-3d */
+  useEffect(() => {
+    const cards = document.querySelectorAll<HTMLElement>(".card-3d");
+    const handlers: Array<[HTMLElement, (e: MouseEvent) => void]> = [];
+    cards.forEach((card) => {
+      const onMove = (e: MouseEvent) => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty("--mx", `${e.clientX - r.left}px`);
+        card.style.setProperty("--my", `${e.clientY - r.top}px`);
+      };
+      card.addEventListener("mousemove", onMove);
+      handlers.push([card, onMove]);
+    });
+    return () => handlers.forEach(([c, h]) => c.removeEventListener("mousemove", h));
   }, [lang]);
 
   const switchLang = () => { setLang((p) => (p === "en" ? "ar" : "en")); setMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
@@ -215,7 +438,63 @@ export default function Home() {
   const iconBg = "bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6]";
 
   return (
-    <main className={`min-h-screen bg-[#0A0F1E] ${fontClass}`} suppressHydrationWarning={true}>
+    <main className={`relative min-h-screen ${fontClass}`} suppressHydrationWarning={true}>
+
+      {/* Boot splash — hides English fallback until lang detection finishes */}
+      <div className={`boot-splash ${mounted ? "is-ready" : ""}`} aria-hidden="true">
+        <span className="boot-splash-logo grad-text">FrontCraftDev</span>
+        <div className="boot-splash-bar" />
+        <span className="boot-splash-tag">Loading</span>
+      </div>
+
+      {/* Scroll progress bar */}
+      <div id="scroll-progress" className="scroll-progress" aria-hidden="true" />
+
+      {/* Film grain */}
+      <div className="film-grain" aria-hidden="true" />
+
+      {/* Cursor spotlight */}
+      <div id="cursor-spotlight" className="cursor-spotlight" aria-hidden="true" />
+
+      {/* Back to top */}
+      <button
+        id="back-to-top"
+        className="back-to-top"
+        aria-label="Back to top"
+        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      >
+        <svg className="ring" viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="btt-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stopColor="#3B82F6" />
+              <stop offset="100%" stopColor="#C9A84C" />
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="46" className="ring-track" />
+          <circle cx="50" cy="50" r="46" className="ring-progress" />
+        </svg>
+        <svg className="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5M5 12l7-7 7 7" />
+        </svg>
+      </button>
+
+      {/* ══════════════════════════════════
+          3D BACKGROUND — code & web symbols
+      ══════════════════════════════════ */}
+      <div className="bg-3d" aria-hidden="true">
+        <span className="bg-3d-symbol orbit-a" style={{ top: "8%",  left: "5%",  fontSize: "5.5rem", color: "rgba(59,130,246,0.07)",  animationDelay: "0s"   }}>{`</>`}</span>
+        <span className="bg-3d-symbol orbit-b" style={{ top: "14%", left: "82%", fontSize: "4rem",   color: "rgba(201,168,76,0.08)",  animationDelay: "-4s"  }}>{`{ }`}</span>
+        <span className="bg-3d-symbol orbit-c" style={{ top: "32%", left: "12%", fontSize: "3rem",   color: "rgba(96,165,250,0.06)",  animationDelay: "-8s"  }}>{`=>`}</span>
+        <span className="bg-3d-symbol orbit-d" style={{ top: "28%", left: "70%", fontSize: "4.5rem", color: "rgba(59,130,246,0.06)",  animationDelay: "-2s"  }}>{`( )`}</span>
+        <span className="bg-3d-symbol orbit-a" style={{ top: "48%", left: "90%", fontSize: "3.5rem", color: "rgba(201,168,76,0.07)",  animationDelay: "-12s" }}>{`@`}</span>
+        <span className="bg-3d-symbol orbit-b" style={{ top: "55%", left: "3%",  fontSize: "4rem",   color: "rgba(96,165,250,0.07)",  animationDelay: "-6s"  }}>{`[ ]`}</span>
+        <span className="bg-3d-symbol orbit-c" style={{ top: "62%", left: "45%", fontSize: "3rem",   color: "rgba(201,168,76,0.06)",  animationDelay: "-9s"  }}>{`#`}</span>
+        <span className="bg-3d-symbol orbit-d" style={{ top: "72%", left: "78%", fontSize: "5rem",   color: "rgba(59,130,246,0.07)",  animationDelay: "-15s" }}>{`</>`}</span>
+        <span className="bg-3d-symbol orbit-a" style={{ top: "80%", left: "18%", fontSize: "3.5rem", color: "rgba(201,168,76,0.08)",  animationDelay: "-3s"  }}>{`&&`}</span>
+        <span className="bg-3d-symbol orbit-b" style={{ top: "88%", left: "60%", fontSize: "4rem",   color: "rgba(96,165,250,0.07)",  animationDelay: "-18s" }}>{`://`}</span>
+        <span className="bg-3d-symbol orbit-c" style={{ top: "40%", left: "35%", fontSize: "3rem",   color: "rgba(59,130,246,0.05)",  animationDelay: "-7s"  }}>{`;`}</span>
+        <span className="bg-3d-symbol orbit-d" style={{ top: "5%",  left: "48%", fontSize: "4rem",   color: "rgba(201,168,76,0.06)",  animationDelay: "-11s" }}>{`{ }`}</span>
+      </div>
 
       {/* ══════════════════════════════════
           NAVBAR
@@ -300,6 +579,13 @@ export default function Home() {
         className="relative min-h-screen flex flex-col items-center justify-center text-center
           px-6 pt-24 pb-16 overflow-hidden"
       >
+        {/* Aurora orbs (gyro-aware) */}
+        <div className="gyro-tilt absolute inset-0 pointer-events-none" data-depth="35">
+          <div className="aurora-orb a" aria-hidden="true" />
+          <div className="aurora-orb b" aria-hidden="true" />
+          <div className="aurora-orb c" aria-hidden="true" />
+        </div>
+
         {/* Dot grid */}
         <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" />
         {/* Gradient mesh */}
@@ -308,18 +594,20 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none"
           style={{ background: "linear-gradient(to top, #0A0F1E, transparent)" }} />
 
-        {/* Floating hex shapes */}
-        <div className="absolute top-24 left-8 md:left-20 w-14 h-14 opacity-10 float-a pointer-events-none">
-          <svg viewBox="0 0 100 115" fill="none"><polygon points="50,2 98,26 98,88 50,113 2,88 2,26" stroke="#3B82F6" strokeWidth="2"/></svg>
-        </div>
-        <div className="absolute top-40 right-8 md:right-28 w-10 h-10 opacity-15 float-b pointer-events-none">
-          <svg viewBox="0 0 100 100" fill="none"><polygon points="50,0 100,50 50,100 0,50" stroke="#C9A84C" strokeWidth="2.5"/></svg>
-        </div>
-        <div className="absolute bottom-32 left-12 md:left-36 w-8 h-8 opacity-10 float-c pointer-events-none">
-          <svg viewBox="0 0 100 100" fill="none"><polygon points="50,5 95,75 5,75" stroke="#3B82F6" strokeWidth="3"/></svg>
-        </div>
-        <div className="absolute bottom-40 right-10 md:right-40 w-12 h-12 opacity-10 float-a pointer-events-none">
-          <svg viewBox="0 0 100 115" fill="none"><polygon points="50,2 98,26 98,88 50,113 2,88 2,26" stroke="#C9A84C" strokeWidth="2"/></svg>
+        {/* Floating hex shapes — 3D depth parallax + gyro tilt */}
+        <div className="gyro-tilt absolute inset-0 scene-3d pointer-events-none" data-depth="20">
+          <div className="absolute top-24 left-8 md:left-20 w-14 h-14 opacity-10 float-a depth-near">
+            <svg viewBox="0 0 100 115" fill="none"><polygon points="50,2 98,26 98,88 50,113 2,88 2,26" stroke="#3B82F6" strokeWidth="2"/></svg>
+          </div>
+          <div className="absolute top-40 right-8 md:right-28 w-10 h-10 opacity-15 float-b depth-mid">
+            <svg viewBox="0 0 100 100" fill="none"><polygon points="50,0 100,50 50,100 0,50" stroke="#C9A84C" strokeWidth="2.5"/></svg>
+          </div>
+          <div className="absolute bottom-32 left-12 md:left-36 w-8 h-8 opacity-10 float-c depth-far">
+            <svg viewBox="0 0 100 100" fill="none"><polygon points="50,5 95,75 5,75" stroke="#3B82F6" strokeWidth="3"/></svg>
+          </div>
+          <div className="absolute bottom-40 right-10 md:right-40 w-12 h-12 opacity-10 float-a depth-mid">
+            <svg viewBox="0 0 100 115" fill="none"><polygon points="50,2 98,26 98,88 50,113 2,88 2,26" stroke="#C9A84C" strokeWidth="2"/></svg>
+          </div>
         </div>
 
         {/* Content */}
@@ -334,11 +622,20 @@ export default function Home() {
 
           {/* Headline */}
           <h1
-            className="animate-fade-up delay-1 text-4xl sm:text-5xl md:text-6xl lg:text-7xl
+            key={lang}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl
               font-bold pt-2 pb-4 mb-7 grad-text"
             style={{ lineHeight: isAr ? "1.5" : "1.1" }}
           >
-            {t.hero.title}
+            {t.hero.title.split(" ").map((word, i, arr) => (
+              <span
+                key={i}
+                className="word-reveal"
+                style={{ animationDelay: `${0.15 + i * 0.09}s` }}
+              >
+                {word}{i < arr.length - 1 ? " " : ""}
+              </span>
+            ))}
           </h1>
 
           {/* Subtitle */}
@@ -347,12 +644,12 @@ export default function Home() {
           </p>
 
           {/* CTA */}
-          <div className="animate-fade-up delay-3 relative inline-flex items-center justify-center">
+          <div className="animate-fade-up delay-3 relative inline-flex items-center justify-center scene-3d">
             <span className="absolute inset-0 rounded-xl bg-[#3B82F6]/30 animate-ping opacity-60" />
             <button
+              id="hero-cta"
               onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
-              className="relative px-10 py-4 rounded-xl font-bold text-lg text-white
-                transition-all duration-200 active:scale-95 hover:scale-[1.03]"
+              className="btn-3d magnetic relative px-10 py-4 rounded-xl font-bold text-lg text-white"
               style={{
                 background: "linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%)",
                 boxShadow: "0 0 35px rgba(59,130,246,0.5), 0 0 70px rgba(59,130,246,0.2)",
@@ -371,8 +668,40 @@ export default function Home() {
             ].map((s, i) => (
               <div key={i} className="glass border border-white/10 rounded-xl sm:rounded-2xl py-4 px-2 sm:px-5 text-center
                 hover:border-[#3B82F6]/30 transition-colors duration-200">
-                <div className="text-xl sm:text-2xl font-extrabold grad-text">{s.n}</div>
+                <div className="text-xl sm:text-2xl font-extrabold grad-text"><CountUp value={s.n} /></div>
                 <div className="text-[10px] sm:text-xs text-slate-500 mt-1 leading-tight">{s.l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Scroll hint — bouncing chevron */}
+        <div id="scroll-hint" className="scroll-hint" aria-hidden="true">
+          <span className="scroll-hint-label">Scroll</span>
+          <span className="scroll-hint-chevron" />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════
+          TECH STACK MARQUEE
+      ══════════════════════════════════ */}
+      <section className="relative py-10 fade-in" dir="ltr">
+        <div className="marquee">
+          <div className="marquee-track">
+            {[...Array(2)].map((_, dup) => (
+              <div key={dup} className="flex items-center gap-12 pr-12">
+                <span className="marquee-item"><span className="glyph">{`</>`}</span>React</span>
+                <span className="marquee-item"><span className="glyph gold">{`{ }`}</span>Next.js</span>
+                <span className="marquee-item"><span className="glyph">TS</span>TypeScript</span>
+                <span className="marquee-item"><span className="glyph gold">~</span>Tailwind</span>
+                <span className="marquee-item"><span className="glyph">⬢</span>Node.js</span>
+                <span className="marquee-item"><span className="glyph gold">F</span>Figma</span>
+                <span className="marquee-item"><span className="glyph">{`( )`}</span>PostgreSQL</span>
+                <span className="marquee-item"><span className="glyph gold">@</span>Vercel</span>
+                <span className="marquee-item"><span className="glyph">{`</>`}</span>React Native</span>
+                <span className="marquee-item"><span className="glyph gold">⚡</span>Turbopack</span>
+                <span className="marquee-item"><span className="glyph">=&gt;</span>GraphQL</span>
+                <span className="marquee-item"><span className="glyph gold">JS</span>JavaScript</span>
               </div>
             ))}
           </div>
@@ -389,19 +718,19 @@ export default function Home() {
           <div className="section-line max-w-xs mx-auto" />
         </div>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="scene-3d grid sm:grid-cols-2 md:grid-cols-3 gap-6">
           {t.services.items.map((s, i) => (
             <div
               key={i}
-              className="glass border border-white/8 rounded-2xl p-8 flex flex-col
-                glow-blue transition-all duration-300 hover:-translate-y-1.5 group"
+              className="card-3d glass border border-white/8 rounded-2xl p-8 flex flex-col
+                glow-blue group"
             >
-              <div className={`w-14 h-14 rounded-xl ${iconBg} flex items-center justify-center text-2xl mb-6
+              <div className={`lift-2 w-14 h-14 rounded-xl ${iconBg} flex items-center justify-center text-2xl mb-6
                 shadow-[0_0_18px_rgba(59,130,246,0.3)] group-hover:shadow-[0_0_26px_rgba(59,130,246,0.5)] transition-shadow duration-300`}>
                 {s.icon}
               </div>
-              <h3 className="text-lg font-semibold text-white mb-1">{s.title}</h3>
-              {s.tag && <p className="text-xs text-[#C9A84C] font-semibold mb-2">{s.tag}</p>}
+              <h3 className="lift-1 text-lg font-semibold text-white mb-1">{s.title}</h3>
+              {s.tag && <p className="lift-1 text-xs text-[#C9A84C] font-semibold mb-2">{s.tag}</p>}
               <p className="text-slate-400 text-sm leading-relaxed flex-1">{s.desc}</p>
             </div>
           ))}
@@ -421,24 +750,24 @@ export default function Home() {
           <div className="section-line max-w-xs mx-auto" />
         </div>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="scene-3d grid sm:grid-cols-2 md:grid-cols-3 gap-6">
           {t.projects.items.map((p, i) => (
             <div
               key={i}
-              className="relative glass border border-white/8 rounded-2xl p-6 flex flex-col
-                glow-blue transition-all duration-300 hover:-translate-y-1.5 overflow-hidden group"
+              className="card-3d relative glass border border-white/8 rounded-2xl p-6 flex flex-col
+                glow-blue overflow-hidden group"
             >
               {/* gradient overlay */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
                 style={{ background: "linear-gradient(135deg, rgba(30,58,138,0.15) 0%, transparent 60%)" }} />
 
               {/* badge */}
-              <span className="absolute top-4 right-4 px-2.5 py-0.5 rounded-full text-[11px] font-bold
+              <span className="lift-2 absolute top-4 right-4 px-2.5 py-0.5 rounded-full text-[11px] font-bold
                 bg-[#3B82F6]/15 border border-[#3B82F6]/35 text-[#60A5FA]">
                 {p.badge === "web" ? t.projects.webBadge : t.projects.appBadge}
               </span>
 
-              <h3 className="relative text-base font-semibold text-white mb-3 pr-14 leading-snug">{p.title}</h3>
+              <h3 className="lift-1 relative text-base font-semibold text-white mb-3 pr-14 leading-snug">{p.title}</h3>
               <p className="relative text-slate-400 text-sm leading-relaxed flex-1">{p.desc}</p>
 
               {p.href ? (
@@ -477,22 +806,21 @@ export default function Home() {
           <p className="text-slate-500 text-sm">{t.apps.sub}</p>
         </div>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="scene-3d grid sm:grid-cols-2 md:grid-cols-3 gap-6">
           {t.apps.items.map((a, i) => (
             <div
               key={i}
-              className="relative glass border border-white/8 rounded-2xl p-8 overflow-hidden
-                hover:border-[#C9A84C]/30 hover:shadow-[0_0_24px_rgba(201,168,76,0.1)]
-                transition-all duration-300 hover:-translate-y-1.5"
+              className="card-3d gold-tilt relative glass border border-white/8 rounded-2xl p-8 overflow-hidden
+                hover:border-[#C9A84C]/30"
             >
               {/* top accent bar */}
               <div className="absolute top-0 left-0 right-0 h-[2px]"
                 style={{ background: "linear-gradient(to right, #1E3A8A, #C9A84C)" }} />
 
               <div className="flex justify-between items-start mb-5">
-                <h3 className="text-base font-semibold text-white leading-snug">{a.title}</h3>
+                <h3 className="lift-1 text-base font-semibold text-white leading-snug">{a.title}</h3>
                 <span
-                  className="ml-3 shrink-0 badge-pulse text-[10px] font-bold px-2.5 py-1 rounded-full
+                  className="lift-2 ml-3 shrink-0 badge-pulse text-[10px] font-bold px-2.5 py-1 rounded-full
                     bg-[#C9A84C]/10 border border-[#C9A84C]/40 text-[#C9A84C] whitespace-nowrap"
                 >
                   {t.apps.badge}
@@ -522,19 +850,15 @@ export default function Home() {
         </div>
 
         {/* 4 website cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
+        <div className="scene-3d grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-6">
           {t.pricing.cards.map((c) => (
             <div
               key={c.key}
-              className={`relative rounded-2xl p-7 flex flex-col transition-all duration-300 hover:-translate-y-1.5
-                ${c.hot
-                  ? "border-2 border-[#C9A84C]/60 bg-gradient-to-b from-[#C9A84C]/8 to-[#0A0F1E]"
-                  : "glass border border-white/8 glow-blue"
-                }`}
+              className={`card-3d ${c.hot ? "gold-tilt magic-border" : "glass border border-white/8 glow-blue"} relative rounded-2xl p-7 flex flex-col`}
               style={c.hot ? { boxShadow: "0 0 35px rgba(201,168,76,0.2), inset 0 0 35px rgba(201,168,76,0.03)" } : {}}
             >
               {c.hot && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full
+                <div className="lift-3 absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full
                   text-xs font-bold text-[#0A0F1E] whitespace-nowrap"
                   style={{ background: "linear-gradient(135deg, #C9A84C, #E5BF6A)" }}
                 >
@@ -542,9 +866,9 @@ export default function Home() {
                 </div>
               )}
 
-              <h3 className={`text-lg font-bold mb-1 ${c.hot ? "text-[#C9A84C]" : "text-white"}`}>{c.name}</h3>
+              <h3 className={`lift-1 text-lg font-bold mb-1 ${c.hot ? "text-[#C9A84C]" : "text-white"}`}>{c.name}</h3>
               <p className="text-slate-500 text-xs mb-5 leading-relaxed">{c.desc}</p>
-              <div className={`text-3xl font-extrabold mb-6 ${c.hot ? "grad-text" : "text-white"}`}>{c.price}</div>
+              <div className={`lift-2 text-3xl font-extrabold mb-6 ${c.hot ? "grad-text" : "text-white"}`}>{c.price}</div>
 
               <ul className="space-y-2.5 text-sm flex-1 mb-7">
                 {c.features.map((f, i) => (
@@ -645,48 +969,81 @@ export default function Home() {
           <p className="text-slate-500 text-sm">{t.contact.sub}</p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-5 justify-center items-center sm:items-stretch">
 
-          {/* WhatsApp */}
+          {/* WhatsApp — flip card */}
           <a href="https://wa.me/19805779916" target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-3 px-7 py-4 rounded-full font-semibold text-sm
-              border border-[#25D366]/35 text-[#25D366] bg-[#25D366]/8
-              hover:bg-[#25D366]/15 hover:border-[#25D366]/60
-              hover:shadow-[0_0_25px_rgba(37,211,102,0.35)] hover:-translate-y-0.5
-              transition-all duration-200 active:scale-95"
+            className="flip-card w-full max-w-xs sm:max-w-[240px] h-32"
+            aria-label="WhatsApp"
           >
-            <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-            </svg>
-            {t.contact.wa}
+            <div className="flip-card-inner">
+              {/* Front */}
+              <div className="flip-card-front flex flex-col items-center justify-center gap-2.5 rounded-2xl
+                border border-[#25D366]/35 text-[#25D366] bg-[#25D366]/8 p-5
+                shadow-[0_0_18px_rgba(37,211,102,0.15)]">
+                <svg className="w-8 h-8 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+                <span className="font-semibold text-sm">{t.contact.wa}</span>
+              </div>
+              {/* Back */}
+              <div className="flip-card-back flex flex-col items-center justify-center gap-1.5 rounded-2xl
+                border border-[#25D366]/70 text-white bg-[#25D366]/15 p-5
+                shadow-[0_0_30px_rgba(37,211,102,0.4)]">
+                <span className="text-[10px] text-[#25D366] uppercase tracking-widest font-bold">WhatsApp</span>
+                <span dir="ltr" className="font-bold text-base">+1 (980) 577-9916</span>
+              </div>
+            </div>
           </a>
 
-          {/* Facebook */}
+          {/* Facebook — flip card */}
           <a href="https://www.facebook.com/FrontCraftDev" target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-3 px-7 py-4 rounded-full font-semibold text-sm
-              border border-[#1877F2]/35 text-[#60A5FA] bg-[#1877F2]/8
-              hover:bg-[#1877F2]/15 hover:border-[#1877F2]/60
-              hover:shadow-[0_0_25px_rgba(24,119,242,0.35)] hover:-translate-y-0.5
-              transition-all duration-200 active:scale-95"
+            className="flip-card w-full max-w-xs sm:max-w-[240px] h-32"
+            aria-label="Facebook"
           >
-            <svg className="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-            </svg>
-            {t.contact.fb}
+            <div className="flip-card-inner">
+              {/* Front */}
+              <div className="flip-card-front flex flex-col items-center justify-center gap-2.5 rounded-2xl
+                border border-[#1877F2]/35 text-[#60A5FA] bg-[#1877F2]/8 p-5
+                shadow-[0_0_18px_rgba(24,119,242,0.15)]">
+                <svg className="w-8 h-8 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+                <span className="font-semibold text-sm">{t.contact.fb}</span>
+              </div>
+              {/* Back */}
+              <div className="flip-card-back flex flex-col items-center justify-center gap-1.5 rounded-2xl
+                border border-[#1877F2]/70 text-white bg-[#1877F2]/15 p-5
+                shadow-[0_0_30px_rgba(24,119,242,0.4)]">
+                <span className="text-[10px] text-[#60A5FA] uppercase tracking-widest font-bold">Facebook</span>
+                <span dir="ltr" className="font-bold text-base">@FrontCraftDev</span>
+              </div>
+            </div>
           </a>
 
-          {/* Email */}
+          {/* Email — flip card */}
           <a href="mailto:contact.frontcraft.dev@gmail.com"
-            className="flex items-center justify-center gap-3 px-7 py-4 rounded-full font-semibold text-sm
-              border border-[#C9A84C]/35 text-[#C9A84C] bg-[#C9A84C]/8
-              hover:bg-[#C9A84C]/15 hover:border-[#C9A84C]/60
-              hover:shadow-[0_0_25px_rgba(201,168,76,0.35)] hover:-translate-y-0.5
-              transition-all duration-200 active:scale-95"
+            className="flip-card w-full max-w-xs sm:max-w-[240px] h-32"
+            aria-label="Email"
           >
-            <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            {t.contact.em}
+            <div className="flip-card-inner">
+              {/* Front */}
+              <div className="flip-card-front flex flex-col items-center justify-center gap-2.5 rounded-2xl
+                border border-[#C9A84C]/35 text-[#C9A84C] bg-[#C9A84C]/8 p-5
+                shadow-[0_0_18px_rgba(201,168,76,0.15)]">
+                <svg className="w-8 h-8 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <span className="font-semibold text-sm">{t.contact.em}</span>
+              </div>
+              {/* Back */}
+              <div className="flip-card-back flex flex-col items-center justify-center gap-1.5 rounded-2xl
+                border border-[#C9A84C]/70 text-white bg-[#C9A84C]/15 p-5
+                shadow-[0_0_30px_rgba(201,168,76,0.4)]">
+                <span className="text-[10px] text-[#C9A84C] uppercase tracking-widest font-bold">Email</span>
+                <span dir="ltr" className="font-bold text-xs break-all px-2">contact.frontcraft.dev@gmail.com</span>
+              </div>
+            </div>
           </a>
 
         </div>
